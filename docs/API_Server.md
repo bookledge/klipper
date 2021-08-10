@@ -1,51 +1,50 @@
-# API server
+# API 서버
 
-This document describes Klipper's Application Programmer Interface
-(API). This interface enables external applications to query and
-control the Klipper host software.
+이 문서는 클리퍼 API 에 대해 기술하고 있습니다. 
+이 인터페이스는 외부 어플리케이션을 쿼리할 수 있게 해주고
+클리퍼 호스트 소프트웨어를 조정할 수 있게 해줍니다.
 
-## Enabling the API socket
+## API Socket 활성화
 
-In order to use the API server, the klippy.py host software must be
-started with the `-a` parameter. For example:
+API 서버를 사용하기 위해서, klippy.py 호스트 소프트웨어가 '-a' 파라메터와 함께 시작되어야 합니다. 
+예를 들어
 ```
 ~/klippy-env/bin/python ~/klipper/klippy/klippy.py ~/printer.cfg -a /tmp/klippy_uds -l /tmp/klippy.log
 ```
 
-This causes the host software to create a Unix Domain Socket. A client
-can then open a connection on that socket and send commands to
-Klipper.
+이는 호스트 소프트웨어가 Unix Domain Socket 을 생성하도록 하며
+그리고 나선 클라이언트가 그 Socket의 연결을 오픈하고, 클리퍼에서 명령을 보낼 수 있습니다. 
 
 ## Request format
 
-Messages sent and received on the socket are JSON encoded strings
-terminated by an ASCII 0x03 character:
+소켓에 보내지고 소신된 메시지들은 JSON 인코딩된 문자열입니다. 
+이 문자열들은 ASCII 0x03 문자로 종료됩니다.
 ```
 <json_object_1><0x03><json_object_2><0x03>...
 ```
 
-Klipper contains a `scripts/whconsole.py` tool that can perform the
-above message framing. For example:
+Klipper 는 `scripts/whconsole.py` 도구를 포함하고 있습니다.
+이 도구는 상위 메시지 프레이밍을 수행할 수 있습니다. 
+예를 들어 : 
 ```
 ~/klipper/scripts/whconsole.py /tmp/klippy_uds
 ```
 
-This tool can read a series of JSON commands from stdin, send them to
-Klipper, and report the results. The tool expects each JSON command to
-be on a single line, and it will automatically append the 0x03
-terminator when transmitting a request. (The Klipper API server does
-not have a newline requirement.)
+이 도구는 stdin 으로부터 연속된 JSON 명령어들을 읽을 수 있습니다. 
+또한 그 읽은 명령어들을 Klipper 로 보내고 결과를 보고할 수 있습니다. 
+그 도구는 각 JSON 명령을 한줄로 인식하며  
+요청을 보낼때 자동으로 0x03 종료자를 추가할 것입니다. 
+(Klipper API 서버는 newline 요청을 가지고 있지 않습니다.)
 
-## API Protocol
+## API 프로토콜
 
-The command protocol used on the communication socket is inspired by
-[json-rpc](https://www.jsonrpc.org/).
+통신소켓에 사용된 명령 프로토콜은 [json-rpc](https://www.jsonrpc.org/) 에 영감을 받았습니다.
 
-A request might look like:
+요청은 다음과 같을 수 있습니다 :
 
 `{"id": 123, "method": "info", "params": {}}`
 
-and a response might look like:
+그리고 응답은 아래와 같을 수 있습니다 : 
 
 `{"id": 123, "result": {"state_message": "Printer is ready",
 "klipper_path": "/home/pi/klipper", "config_file":
@@ -54,12 +53,12 @@ and a response might look like:
 (v7l)", "state": "ready", "python_path":
 "/home/pi/klippy-env/bin/python", "log_file": "/tmp/klippy.log"}}`
 
-Each request must be a JSON dictionary. (This document uses the Python
-term "dictionary" to describe a "JSON object" - a mapping of key/value
-pairs contained within `{}`.)
+각 요청은 JSON 딕셔너리여야 합니다. 
+(이 문서는 "JSON object" - key/value 쌍은 `{}`를 포함하여 맵핑 - 
+를 표현하기 위해 파이썬 용어 사전을 사용합니다.)
 
-The request dictionary must contain a "method" parameter that is the
-string name of an available Klipper "endpoint".
+요청 딕셔너리는 "method" 파라메터를 반드시 포함해야 합니다. 
+이 파라메터는 사용가능한 Klipper "endpoint"의 문자열 이름입니다. 
 
 The request dictionary may contain a "params" parameter which must be
 of a dictionary type. The "params" provide additional parameter
