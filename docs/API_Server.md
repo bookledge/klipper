@@ -1,51 +1,50 @@
-# API server
+# API 서버
 
-This document describes Klipper's Application Programmer Interface
-(API). This interface enables external applications to query and
-control the Klipper host software.
+이 문서는 클리퍼 API 에 대해 기술하고 있습니다. 
+이 인터페이스는 외부 어플리케이션을 쿼리할 수 있게 해주고
+클리퍼 호스트 소프트웨어를 조정할 수 있게 해줍니다.
 
-## Enabling the API socket
+## API Socket 활성화
 
-In order to use the API server, the klippy.py host software must be
-started with the `-a` parameter. For example:
+API 서버를 사용하기 위해서, klippy.py 호스트 소프트웨어가 '-a' 파라메터와 함께 시작되어야 합니다. 
+예를 들어
 ```
 ~/klippy-env/bin/python ~/klipper/klippy/klippy.py ~/printer.cfg -a /tmp/klippy_uds -l /tmp/klippy.log
 ```
 
-This causes the host software to create a Unix Domain Socket. A client
-can then open a connection on that socket and send commands to
-Klipper.
+이는 호스트 소프트웨어가 Unix Domain Socket 을 생성하도록 하며
+그리고 나선 클라이언트가 그 Socket의 연결을 오픈하고, 클리퍼에서 명령을 보낼 수 있습니다. 
 
 ## Request format
 
-Messages sent and received on the socket are JSON encoded strings
-terminated by an ASCII 0x03 character:
+소켓에 보내지고 소신된 메시지들은 JSON 인코딩된 문자열입니다. 
+이 문자열들은 ASCII 0x03 문자로 종료됩니다.
 ```
 <json_object_1><0x03><json_object_2><0x03>...
 ```
 
-Klipper contains a `scripts/whconsole.py` tool that can perform the
-above message framing. For example:
+Klipper 는 `scripts/whconsole.py` 도구를 포함하고 있습니다.
+이 도구는 상위 메시지 프레이밍을 수행할 수 있습니다. 
+예를 들어 : 
 ```
 ~/klipper/scripts/whconsole.py /tmp/klippy_uds
 ```
 
-This tool can read a series of JSON commands from stdin, send them to
-Klipper, and report the results. The tool expects each JSON command to
-be on a single line, and it will automatically append the 0x03
-terminator when transmitting a request. (The Klipper API server does
-not have a newline requirement.)
+이 도구는 stdin 으로부터 연속된 JSON 명령어들을 읽을 수 있습니다. 
+또한 그 읽은 명령어들을 Klipper 로 보내고 결과를 보고할 수 있습니다. 
+그 도구는 각 JSON 명령을 한줄로 인식하며  
+요청을 보낼때 자동으로 0x03 종료자를 추가할 것입니다. 
+(Klipper API 서버는 newline 요청을 가지고 있지 않습니다.)
 
-## API Protocol
+## API 프로토콜
 
-The command protocol used on the communication socket is inspired by
-[json-rpc](https://www.jsonrpc.org/).
+통신소켓에 사용된 명령 프로토콜은 [json-rpc](https://www.jsonrpc.org/) 에 영감을 받았습니다.
 
-A request might look like:
+요청은 다음과 같을 수 있습니다 :
 
 `{"id": 123, "method": "info", "params": {}}`
 
-and a response might look like:
+그리고 응답은 아래와 같을 수 있습니다 : 
 
 `{"id": 123, "result": {"state_message": "Printer is ready",
 "klipper_path": "/home/pi/klipper", "config_file":
@@ -54,110 +53,106 @@ and a response might look like:
 (v7l)", "state": "ready", "python_path":
 "/home/pi/klippy-env/bin/python", "log_file": "/tmp/klippy.log"}}`
 
-Each request must be a JSON dictionary. (This document uses the Python
-term "dictionary" to describe a "JSON object" - a mapping of key/value
-pairs contained within `{}`.)
+각 요청은 JSON 딕셔너리여야 합니다. 
+(이 문서는 "JSON object" - key/value 쌍은 `{}`를 포함하여 맵핑 - 
+를 표현하기 위해 파이썬 용어 사전을 사용합니다.)
 
-The request dictionary must contain a "method" parameter that is the
-string name of an available Klipper "endpoint".
+요청 딕셔너리는 "method" 파라메터를 반드시 포함해야 합니다. 
+이 파라메터는 사용가능한 Klipper "endpoint"의 문자열 이름입니다. 
 
-The request dictionary may contain a "params" parameter which must be
-of a dictionary type. The "params" provide additional parameter
-information to the Klipper "endpoint" handling the request. Its
-content is specific to the "endpoint".
+요청 딕셔너리는 "params" 파라메터를 포함할 수 있습니다. 이 파라메터는 반드시 딕셔너리 타입이어야 합니다.
+"params" 는 클리퍼 "endpoint"가 요청을 다룰 수 있도록 추가적인 파라메터를 제공합니다. 
+그 내용은 "endpoint"에 특정됩니다. 
 
-The request dictionary may contain an "id" parameter which may be of
-any JSON type. If "id" is present then Klipper will respond to the
-request with a response message containing that "id". If "id" is
-omitted (or set to a JSON "null" value) then Klipper will not provide
-any response to the request. A response message is a JSON dictionary
-containing "id" and "result". The "result" is always a dictionary -
-its contents are specific to the "endpoint" handling the request.
+요청 딕셔너리는 "id" 파라메터를 포함할 수 있습니다. 
+이 파라메터는 JSON 타입이 될 수 있습니다. 
+만일 "id" 가 존재한다면 클리퍼는 "id"를 포함한 응답 메시지와 함께 요청에 반응할 것입니다.
+민일 "id" 가 생략되어 있다면 (혹은 JSON "null"값이 셋팅되어 있다면) 
+클리퍼는 요청에 대해 어떤 응답도 제공하지 않을 것입니다.  
+응답 메시지는 "id" 와 "result" 를 포함한 JSON 딕셔너리입니다. 
+"result" 는 항상 딕셔너리 입니다. 
+그것의 내용은 요청을 다루는 "endpoint"에 특정됩니다. 
 
-If the processing of a request results in an error, then the response
-message will contain an "error" field instead of a "result" field. For
-example, the request:
+만일 요청한 프로세싱이 에러가 나면,
+응답메시지는 "result" 필드 대신에 "error" 필드르 포함할 것입니다. 
+예를 들어, 요청이 : 
 `{"id": 123, "method": "gcode/script", "params": {"script": "G1
 X200"}}`
-might result in an error response such as:
+이렇게 들어가면 다음과 같은 결과를 냅니다 :
 `{"id": 123, "error": {"message": "Must home axis
 first: 200.000 0.000 0.000 [0.000]", "error": "WebRequestError"}}`
 
-Klipper will always start processing requests in the order that they
-are received. However, some request may not complete immediately,
-which could cause the associated response to be sent out of order with
-respect to responses from other requests. A JSON request will never
-pause the processing of future JSON requests.
+클리퍼는 항상 받은 순서대로 요청 프로세싱을 시작합니다. 하지만
+몇몇 요청들은 즉각 완료되지 않을 수 있습니다. 
+이로인해 관련된 응답이 다른 요청에 대한 응답에 대응하는 순서르 벗어나 보내어질 수 있습니다. 
+JSON 요청은 절대로 미래의 JSON 요청의 프로세싱들을 중단시키지 않을 것입니다. 
 
-## Subscriptions
+## 구독
 
-Some Klipper "endpoint" requests allow one to "subscribe" to future
-asynchronous update messages.
+몇몇 클리퍼의 "endpoint" 요청들은 미래의 비동기적인 업데이트 메시지 구독을 허락합니다. 
 
-For example:
+예를 들면:
 
 `{"id": 123, "method": "gcode/subscribe_output", "params":
 {"response_template":{"key": 345}}}`
 
-may initially respond with:
+이것은 기초적으로 다음과 같이 응답합니다.
 
 `{"id": 123, "result": {}}`
 
-and cause Klipper to send future messages similar to:
+그리고, 클리퍼로 하여금 다음과 같은 미래 메시지들을 보내게 합니다. 
 
 `{"params": {"response": "ok B:22.8 /0.0 T0:22.4 /0.0"}, "key": 345}`
 
-A subscription request accepts a "response_template" dictionary in the
-"params" field of the request. That "response_template" dictionary is
-used as a template for future asynchronous messages - it may contain
-arbitrary key/value pairs. When sending these future asynchronous
-messages, Klipper will add a "params" field containing a dictionary
-with "endpoint" specific contents to the response template and then
-send that template. If a "response_template" field is not provided
-then it defaults to an empty dictionary (`{}`).
+구독 요청은 요청에 대한 "params" 필드에 있는 "response_template" 딕셔너리를 받아들입니다.
+"response_template" 딕셔너리는 미래 미동기 메시지를 위한 템플릿으로 사용됩니다. 
+그것은 임의의 키/값 쌍을 포함할 수 있습니다. 
+이러한 미래 비동기 메시지들을 보내려 할 때 
+클리퍼는 응답 템플릿에 "endpoint" 특정 딕셔너리 내용을 포함하고 있는 "params" 필드를 더할 것입니다. 
+그리고, 그 템플릿을 보내게 됩니다. 
+만약 "response_template" 필드가 제공되지 않는다면 빈 딕셔너리 (`{}`) 를 디폴트로 하게 됩니다.
 
-## Available "endpoints"
+## 사용가능한 "endpoints"
 
-By convention, Klipper "endpoints" are of the form
-`<module_name>/<some_name>`. When making a request to an "endpoint",
-the full name must be set in the "method" parameter of the request
-dictionary (eg, `{"method"="gcode/restart"}`).
+관행적으로 클리퍼 "endpoints"는 `<module_name>/<some_name>` 형식으로 이뤄집니다. 
+"endpoint" 에 요청을 하고자 할 때,
+full name 은 요청 딕셔너리의 "method" 파라메터에 셋팅되어 있어야만 합니다. 
+(예, `{"method"="gcode/restart"}`).
 
-### info
+### 정보
 
-The "info" endpoint is used to obtain system and version information
-from Klipper. It is also used to provide the client's version
-information to Klipper. For example:
+ "info" endpoint 클리퍼로 부터 시스템과 버전 정보를 가져오 수 있습니다. 
+또한 클리퍼에 클라이언트 버전 정보르 제공하는데도 사용될 수 있습니다. 
+예시 :
 `{"id": 123, "method": "info", "params": { "client_info": { "version":
 "v1"}}}`
 
-If present, the "client_info" parameter must be a dictionary, but that
-dictionary may have arbitrary contents. Clients are encouraged to
-provide the name of the client and its software version when first
-connecting to the Klipper API server.
+만이 존재한다면, "client_info" 파라메터는 딕셔너리여야만 합니다. 
+그러나 그 딕셔너리는 임의의 내용들을 가질 수 있습니다. 
+클라이언트는 처음 클리퍼 API 서버와 연결될 때 클라이언트의 이름이나 소프트웨어 버전을 제공할 수 있습니다. 
 
-### emergency_stop
+### 비상정지(emergency_stop)
 
-The "emergency_stop" endpoint is used to instruct Klipper to
-transition to a "shutdown" state. It behaves similarly to the G-Code
-`M112` command. For example:
+"emergency_stop" endpoint 는 클리퍼가 "shutdown" 상태로 가도록 지시하는데 사용합니다. 
+그것은 `M112` gcode 와 비슷하게 행동합니다. 
+예시 :
 `{"id": 123, "method": "emergency_stop"}`
 
-### register_remote_method
+### 레지스터 원격 메쏘드(register_remote_method)
 
-This endpoint allows clients to register methods that can be called
-from klipper.  It will return an empty object upon success.
+이 endpoint 는 클라이언트가 클리퍼로부터 불려지 수 있도록 메쏘드를 등록하게 해줍니다. 
+이는 성공시 비어있는 객체를 리턴합니다. 
 
-For example:
+예시 :
 `{"id": 123, "method": "register_remote_method",
 "params": {"response_template": {"action": "run_paneldue_beep"},
 "remote_method": "paneldue_beep"}}`
-will return:
+반환값 :
 `{"id": 123, "result": {}}`
 
-The remote method `paneldue_beep` may now be called from Klipper. Note
-that if the method takes parameters they should be provided as keyword
-arguments. Below is an example of how it may called from a gcode_macro:
+원격 메쏘드  `paneldue_beep` 는 클리퍼로 부터 불려질 수 있습니다. 
+만일 메쏘드가 파라메터들을 가지게 되면 그것들은 키워드 아규먼트들로써 제공될 수 있음을 기억하십시오.
+아래 어떻게 gcode 메크로에서 불러올 수 있는지에 대한 예시가 있습니다. :
 ```
 [gcode_macro PANELDUE_BEEP]
 gcode:
