@@ -39,65 +39,70 @@ sudo update-rc.d octoprint defaults
 ```
 
 필수적으로 옥토프린터의 **/etc/default/octoprint** configuration 을 수정해줘야할 필요가 있습니다.
-OCTOPRINT_USER 는 "debian" 으로
-NICE 
-One must change the OCTOPRINT_USER user to
-"debian", change NICELEVEL to 0, uncomment the BASEDIR, CONFIGFILE,
-and DAEMON settings and change the references from "/home/pi/" to
-"/home/debian/":
+OCTOPRINT_USER 사용자는 "debian" 으로
+NICELEVEL 은 0 으로
+BASEDIR, CONFIGFILE, DAEMON 셋팅들은 코멘트해제,
+그리고 참조(references) 를 "/home/pi/" 에서 "/home/debian/" 으로 변경시킵니다. 
+ 
 ```
 sudo nano /etc/default/octoprint
 ```
 
-Then start the Octoprint service:
+그 다음 옥토프린터 서비스를 시작합니다:
+
 ```
 sudo systemctl start octoprint
 ```
 
-Make sure the octoprint web server is accessible - it should be at:
+옥토프린터 웹서버에 연결되었음을 확인합니다. 연결주소는 다음과 같습니다. 
+
 [http://beaglebone:5000/](http://beaglebone:5000/)
 
-## Building the micro-controller code
 
-To compile the Klipper micro-controller code, start by configuring it
-for the "Beaglebone PRU":
+## 마이크로 컨트롤러 코드를 빌드하기
+
+클리퍼의 마이크로 컨트롤러 코드를 컴파일하기 위해 "Beaglebone PRU"에 대한 설정을 해줍니다.:
+
 ```
 cd ~/klipper/
 make menuconfig
 ```
 
-To build and install the new micro-controller code, run:
+새로운 마이크로 컨트롤러 코드를 빌드하고 설치하기 위해 다음을 실행시킵니다. :
+
 ```
 sudo service klipper stop
 make flash
 sudo service klipper start
 ```
 
-It is also necessary to compile and install the micro-controller code
-for a Linux host process. Run "make menuconfig" a second time and
-configure it for a "Linux process":
+또한 리눅스 호스트 프로세스를 위해서 마이크로 컨트롤러 코드를 컴파일하고 설치해줄 필요가 있습니다. 
+두번째로 "make menuconfig" 를 실행시키고, "Linux process"를 위해 그것을 설정해줍니다.:
+
 ```
 make menuconfig
 ```
 
-Then install this micro-controller code as well:
+그리고나서 이 마이크로 컨트롤러 코드를 설치해줍니다.:
+
 ```
 sudo service klipper stop
 make flash
 sudo service klipper start
 ```
 
-## Remaining configuration
+## 나머지 설정 
 
-Complete the installation by configuring Klipper and Octoprint
-following the instructions in
-[the main installation document](Installation.md#configuring-klipper).
+다음 문서 [the main installation document](Installation.md#configuring-klipper) 
+를 보면서 클리퍼와 옥토프린터의 설정을 완료하십시오. 
 
-## Printing on the Beaglebone
 
-Unfortunately, the Beaglebone processor can sometimes struggle to run
-OctoPrint well. Print stalls have been known to occur on complex
-prints (the printer may move faster than OctoPrint can send movement
-commands). If this occurs, consider using the "virtual_sdcard" feature
-(see [config reference](Config_Reference.md#virtual_sdcard) for
-details) to print directly from Klipper.
+## 비글본으로 출력해보기
+
+불행하게도, 비글본 프로세서는 옥토프린터를 돌리는데 간혹 버거울 수 있습니다. 
+프린터 실속(속도를 잃음)은 복잡한 출력을 할 때 발생하는 것으로 알려져 있습니다.
+(프린터는 옥토프린터가 이동명령을 보내는것보다 더 빨리 움직일 수 있다)
+만일 이런 현상이 발생한다면, 클리퍼로 부터 직접적으로 출력하기 위해
+"virtual_sdcard" 를 사용할것을 고려해보십시오.
+(자세한 내용은 다음 링크 참조. [config reference](Config_Reference.md#virtual_sdcard) )
+
