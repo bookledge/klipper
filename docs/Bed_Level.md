@@ -1,45 +1,31 @@
-# Bed leveling
+# 베드 레벨링
 
-Bed leveling (sometimes also referred to as "bed tramming") is
-critical to getting high quality prints. If a bed is not properly
-"leveled" it can lead to poor bed adhesion, "warping", and subtle
-problems throughout the print. This document serves as a guide to
-performing bed leveling in Klipper.
+베드레벨링(때로는 베드 트램밍tramming으로 불려지기도 한다)은 고품질 출력을 얻는데 결정적이다. 
+만약 베드레벨이 제대로 맞춰져 있지 않으면 베드 안착에 문제가 생길 수 있다. 그래서 모서리 들뜸이나 프린트 전반에 걸친 자잘하나 문제들이 일어날 수 있다. 
+이 문서는 클리퍼에서 베드레벨을 시행하는데 가이드를 제공한다. 
 
-It's important to understand the goal of bed leveling. If the printer
-is commanded to a position `X0 Y0 Z10` during a print, then the goal
-is for the printer's nozzle to be exactly 10mm from the printer's
-bed. Further, should the printer then be commanded to a position of
-`X50 Z10` the goal is for the nozzle to maintain an exact distance of
-10mm from the bed during that entire horizontal move.
+베드레벨링의 목표를 이해하는 것이 중요하다. 만약 프린터가 `X0 Y0 Z10` 위치로 가라고 명령을 받았다면
+노즐은 프린터의 베드로 부터 정확히 10mm 위에 있어야 한다. 
+연이어서 `X50 Z10`으로 이동하라고 명령을 하면 노즐은 베드와의 간격을 정확히 10mm 유지한 상태에서 수평으로 이동해야 한다. 
 
-In order to get good quality prints the printer should be calibrated
-so that Z distances are accurate to within about 25 microns (.025mm).
-This is a small distance - significantly smaller than the width of a
-typical human hair. This scale can not be measured "by eye". Subtle
-effects (such as heat expansion) impact measurements at this scale.
-The secret to getting high accuracy is to use a repeatable process and
-to use a leveling method that leverages the high accuracy of the
-printer's own motion system.
+고품질 출력물을 얻기 위해 프린터는 약 0.025mm (25마이크로미터) 내의 정확도로 Z 높이를 캘리브레이션 해야 한다. 
+이정도 거리는 보통의 사람 머리카락두께보다 훨씬 더 얇은 값이다. 
+이 스케일은 눈으로는 측정될 수 없는 값이다. 열팽창와 같은 아주 미세한 것도 이정도 스케일에는 영향을 미칠 수 있다. 
+높은 정확도의 레벨링을 얻을 수 있는 비밀은 반복에 있다. 그리고 프린터 자체의 모션시스템의 정확성을 이용하는데 있다. 
 
-## Choose the appropriate calibration mechanism
+## 적절한 캘리브레이션 메카니즘을 선택하라
 
-Different types of printers use different methods for performing bed
-leveling. All of them ultimately depend on the "paper test" (described
-below). However, the actual process for a particular type of printer
-is described in other documents.
+프린터들마다 각자 저마다의 베드레벨링 방식을 채택하고 있다. 
+그것들 대부분은 결국에는 아래 기술한 "종이테스트"에 의존한다. 
+특별한 타입의 프린터를 위한 실제 과정은 다른 문서에서 소개하겠다.
 
-Prior to running any of these calibration tools, be sure to run the
-checks described in the [config check document](Config_checks.md). It
-is necessary to verify basic printer motion before performing bed
-leveling.
+이 캘리브레이션 도구들을 이용하기전에 [config check document](Config_checks.md) 에 기재된 내용으로 꼭 체크해보기 바란다. 
+베드레벨링을 하기 앞서 프린터의 기본동작상태를 점검하는 것은 필수적이다. 
 
-For printers with an "automatic Z probe" be sure to calibrate the
-probe following the directions in the
-[Probe Calibrate](Probe_Calibrate.md) document. For delta printers,
-see the [Delta Calibrate](Delta_Calibrate.md) document. For printers
-with bed screws and traditional Z endstops, see the
-[Manual Level](Manual_Level.md) document.
+오토레벨링센서가 장착된 프린터의 경우는 [Probe Calibrate](Probe_Calibrate.md) 문서에 있는 지시내용을 따라 반드시 캘리브레이션 하도록 하라. 
+델타 프린터라면 [Delta Calibrate](Delta_Calibrate.md) 를 참고하기 바란다.
+그리고, 베드나사와 전통적인 Z endstop 을 가진 프린터는 [Manual Level](Manual_Level.md) 문서를 참고하라.
+
 
 During calibration it may be necessary to set the printer's Z
 `position_min` to a negative number (eg, `position_min = -2`). The
