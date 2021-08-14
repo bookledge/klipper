@@ -1,27 +1,27 @@
-# Beaglebone
+# 비글본 (Beaglebone) 
 
-This document describes the process of running Klipper on a Beaglebone
-PRU.
+이 문서는 비글본 PRU 에서 클리퍼를 실행시키는 과정에 대해 설명합니다. 
 
-## Building an OS image
+## OS 이미지를 빌드하기
 
-Start by installing the
+시작은 다음 이미지를 설치하는 것부터 입니다. 
 [Debian 9.9 2019-08-03 4GB SD IoT](https://beagleboard.org/latest-images)
-image. One may run the image from either a micro-SD card or from
-builtin eMMC. If using the eMMC, install it to eMMC now by following
-the instructions from the above link.
 
-Then ssh into the beaglebone machine (ssh debian@beaglebone --
-password is "temppwd") and install Klipper by running the following
-commands:
+이 이미지는 마이크로SD 카드나 내장된 eMMC 로 부터 실행시킬 수 있습니다. 
+만일 eMMC 를 사용한다면, 위 링크로 부터 다음 절차에 따라 eMMC 에 지금 설치하십시오. 
+
+그리고 비글본 장치로 접속하십시오. (ssh debian@beaglebone -- password is "temppwd") 
+그다음 아래 명령어를 실행시켜 클리퍼를 설치하시면 됩니다.:
+
 ```
 git clone https://github.com/KevinOConnor/klipper
 ./klipper/scripts/install-beaglebone.sh
 ```
 
-## Install Octoprint
+## 옥토프린터 설치하기
 
-One may then install Octoprint:
+이제 옥토프린터를 설치하실 수 있습니다. :
+
 ```
 git clone https://github.com/foosel/OctoPrint.git
 cd OctoPrint/
@@ -29,7 +29,8 @@ virtualenv venv
 ./venv/bin/python setup.py install
 ```
 
-And setup OctoPrint to start at bootup:
+그리고 옥토프린터를 부팅시 시작하도록 셋업을 해줍니다.:
+
 ```
 sudo cp ~/OctoPrint/scripts/octoprint.init /etc/init.d/octoprint
 sudo chmod +x /etc/init.d/octoprint
@@ -37,8 +38,10 @@ sudo cp ~/OctoPrint/scripts/octoprint.default /etc/default/octoprint
 sudo update-rc.d octoprint defaults
 ```
 
-It is necessary to modify OctoPrint's **/etc/default/octoprint**
-configuration file. One must change the OCTOPRINT_USER user to
+필수적으로 옥토프린터의 **/etc/default/octoprint** configuration 을 수정해줘야할 필요가 있습니다.
+OCTOPRINT_USER 는 "debian" 으로
+NICE 
+One must change the OCTOPRINT_USER user to
 "debian", change NICELEVEL to 0, uncomment the BASEDIR, CONFIGFILE,
 and DAEMON settings and change the references from "/home/pi/" to
 "/home/debian/":
