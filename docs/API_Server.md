@@ -169,25 +169,32 @@ PANELDUE_BEEP gcode 매크로가 실행되면
 
 ### 객체/리스트 (objects/list)
 
+이 endpoint는 쿼리할 수 있는 사용가능한 프린터 "objects"객체들의 리스트를 쿼리합니다.
+("objects/query" endpoint 를 통하여). 예를 들면:
 
-This endpoint queries the list of available printer "objects" that one
-may query (via the "objects/query" endpoint). For example:
 `{"id": 123, "method": "objects/list"}`
-might return:
+
+이것은 다음과 같은 결과를 돌려줄 것입니다.:
+
 `{"id": 123, "result": {"objects":
 ["webhooks", "configfile", "heaters", "gcode_move", "query_endstops",
 "idle_timeout", "toolhead", "extruder"]}}`
 
-### objects/query
+### 객체/쿼리
 
-This endpoint allows one to query information from printer objects.
-For example:
+이 endpoint 는 프린터 객체들로 부터 정보를 쿼리할 수 있게 해줍니다. 
+예를 들어:
+
 `{"id": 123, "method": "objects/query", "params": {"objects":
 {"toolhead": ["position"], "webhooks": null}}}`
-might return:
+
+이렇게 입력하면, 다음과 같은 값을 돌려줍니다. :
+
 `{"id": 123, "result": {"status": {"webhooks": {"state": "ready",
 "state_message": "Printer is ready"}, "toolhead": {"position":
 [0.0, 0.0, 0.0, 0.0]}}, "eventtime": 3051555.377933684}}`
+
+
 
 The "objects" parameter in the request must be a dictionary containing
 the printer objects that are to be queried - the key contains the
