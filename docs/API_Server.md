@@ -60,19 +60,20 @@ Klipper 는 `scripts/whconsole.py` 도구를 포함하고 있습니다.
 요청 딕셔너리는 "method" 파라메터를 반드시 포함해야 합니다. 
 이 파라메터는 사용가능한 Klipper "endpoint"의 문자열 이름입니다. 
 
-The request dictionary may contain a "params" parameter which must be
-of a dictionary type. The "params" provide additional parameter
-information to the Klipper "endpoint" handling the request. Its
-content is specific to the "endpoint".
+요청 딕셔너리는 "params" 파라메터를 포함할 수 있습니다. 이 파라메터는 반드시 딕셔너리 타입이어야 합니다.
+"params" 는 클리퍼 "endpoint"가 요청을 다룰 수 있도록 추가적인 파라메터를 제공합니다. 
+그 내용은 "endpoint"에 특정됩니다. 
 
-The request dictionary may contain an "id" parameter which may be of
-any JSON type. If "id" is present then Klipper will respond to the
-request with a response message containing that "id". If "id" is
-omitted (or set to a JSON "null" value) then Klipper will not provide
-any response to the request. A response message is a JSON dictionary
-containing "id" and "result". The "result" is always a dictionary -
-its contents are specific to the "endpoint" handling the request.
+요청 딕셔너리는 "id" 파라메터를 포함할 수 있습니다. 
+이 파라메터는 JSON 타입이 될 수 있습니다. 
+만일 "id" 가 존재한다면 클리퍼는 "id"를 포함한 응답 메시지와 함께 요청에 반응할 것입니다.
+민일 "id" 가 생략되어 있다면 (혹은 JSON "null"값이 셋팅되어 있다면) 
+클리퍼는 요청에 대해 어떤 응답도 제공하지 않을 것입니다.  
+응답 메시지는 "id" 와 "result" 를 포함한 JSON 딕셔너리입니다. 
+"result" 는 항상 딕셔너리 입니다. 
+그것의 내용은 요청을 다루는 "endpoint"에 특정됩니다. 
 
+만일 요청 프로세싱에 에러가 나면 
 If the processing of a request results in an error, then the response
 message will contain an "error" field instead of a "result" field. For
 example, the request:
