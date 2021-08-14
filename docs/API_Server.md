@@ -155,6 +155,7 @@ full name 은 요청 딕셔너리의 "method" 파라메터에 셋팅되어 있�
 아래 어떻게 gcode 메크로에서 불러올 수 있는지에 대한 예시가 있습니다. :
 
 테스트
+지금시간 3시 35분 테스트
 
 ```
 [gcode_macro PANELDUE_BEEP]
