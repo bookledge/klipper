@@ -180,7 +180,7 @@ PANELDUE_BEEP gcode 매크로가 실행되면
 ["webhooks", "configfile", "heaters", "gcode_move", "query_endstops",
 "idle_timeout", "toolhead", "extruder"]}}`
 
-### 객체/쿼리
+### 객체/쿼리 (objects/query)
 
 이 endpoint 는 프린터 객체들로 부터 정보를 쿼리할 수 있게 해줍니다. 
 예를 들어:
@@ -194,130 +194,149 @@ PANELDUE_BEEP gcode 매크로가 실행되면
 "state_message": "Printer is ready"}, "toolhead": {"position":
 [0.0, 0.0, 0.0, 0.0]}}, "eventtime": 3051555.377933684}}`
 
+요청에 들어 있는 "objects" 파라메터는 쿼리되어질 수 있는 프린터 객체를 포함하고 있는 딕셔너리여야 합니다. - 핵심 포함요소는 프린터 객체 이름과 키값이 "null" 이거나 필드 이름의 리스트여야 합니다. 
+
+응답 메시지는 쿼리된 정보를 가지고 있는 딕셔너리에 포함된 "status" 필드를 포함할 것입니다. 
+프린터 이름을 포함해야 하며 그 값은 그것을 포함하고 있는 딕셔너리입니다. 
+응답 메시지는 또한 쿼리가 가져와질때의 타임스탬프를 포함한 "eventtime"필드를 포함할 것입니다. 
+
+가능한 필드들은 다음 문서에 있습니다. 
+[Status Reference](Status_Reference.md) 문서.
 
 
-The "objects" parameter in the request must be a dictionary containing
-the printer objects that are to be queried - the key contains the
-printer object name and the value is either "null" (to query all
-fields) or a list of field names.
+### 객체/서브스크라이브 (objects/subscribe)
 
-The response message will contain a "status" field containing a
-dictionary with the queried information - the key contains the printer
-object name and the value is a dictionary containing its fields. The
-response message will also contain an "eventtime" field containing the
-timestamp from when the query was taken.
+이 endpoint 는 프린터 객체로 부터 정보를 쿼리하고 서브스크라이브 할 수 있게 해줍니다. 
+이 endpoint 의 요청과 응답은 "objects/query" endpoint 와 동일합니다. 
+예를 들어 : 
 
-Available fields are documented in the
-[Status Reference](Status_Reference.md) document.
-
-### objects/subscribe
-
-This endpoint allows one to query and then subscribe to information
-from printer objects. The endpoint request and response is identical
-to the "objects/query" endpoint. For example:
 `{"id": 123, "method": "objects/subscribe", "params":
 {"objects":{"toolhead": ["position"], "webhooks": ["state"]},
 "response_template":{}}}`
-might return:
+
+이것은 다음을 돌려줄 것입니다. : 
+
 `{"id": 123, "result": {"status": {"webhooks": {"state": "ready"},
 "toolhead": {"position": [0.0, 0.0, 0.0, 0.0]}},
 "eventtime": 3052153.382083195}}`
-and result in subsequent asynchronous messages such as:
+
+그리고 다음과 같은 연속된 비동기형 메시지를 내보내줄 것입니다. 
+
 `{"params": {"status": {"webhooks": {"state": "shutdown"}},
 "eventtime": 3052165.418815847}}`
 
-### gcode/help
+### gcode/도움말 (gcode/help)
 
-This endpoint allows one to query available G-Code commands that have
-a help string defined. For example:
+이 endpoint 는 정의된 help 문자열을 가지고 있는 가능한 G-Code 명령을 쿼리할 수 있게 해줍니다. 
+예를 들어 : 
+
 `{"id": 123, "method": "gcode/help"}`
-might return:
+
+이것은 다음을 돌려줄 것입니다.:
+
 `{"id": 123, "result": {"RESTORE_GCODE_STATE": "Restore a previously
 saved G-Code state", "PID_CALIBRATE": "Run PID calibration test",
 "QUERY_ADC": "Report the last value of an analog pin", ...}}`
 
-### gcode/script
+### gcode/스크립트 (gcode/script)
 
-This endpoint allows one to run a series of G-Code commands. For example:
+이 endpoint 는 일련의 G-code 명령어들을 실행할 수 있게 해줍니다. 
+예를들어 : 
+
 `{"id": 123, "method": "gcode/script", "params": {"script": "G90"}}`
 
-If the provided G-Code script raises an error, then an error response
-is generated. However, if the G-Code command produces terminal output,
-that terminal output is not provided in the response. (Use the
-"gcode/subscribe_output" endpoint to obtain G-Code terminal output.)
+만일 제공된 G-code 스크립트가 에러를 내면, 에러응답이 생성됩니다. 
+그러나 만일 G-code 명령이 터미널 결과값을 생성해내면 
+그 터미널 결과값은 응답값으로 제공되지 않습니다. 
+(G-code 터미널 결과값을 얻고자 한다면 "gcode/subscribe_output" endpoint 를 사용하십시오)
 
-If there is a G-Code command being processed when this request is
-received, then the provided script will be queued. This delay could be
-significant (eg, if a G-Code wait for temperature command is running).
-The JSON response message is sent when the processing of the script
-fully completes.
+만일 요청이 받아들여졌을때 프로세싱되는 G-code 명령이 있다면, 제공된 스크립트는 순서를 기다리게 될 것이다.
+이 지연은 매우 중요할 수 있다. 
+(예를 들어 온도 명령을 기다리는 G-code 가 작동될 때와 같이 말이다)
+JSON 응답 메시지는 스크립트의 프로세싱을 완전히 끝마쳤을때 보내진다
 
-### gcode/restart
+### gcode/재시작 (gcode/restart)
 
-This endpoint allows one to request a restart - it is similar to
-running the G-Code "RESTART" command. For example:
+이 endpoint 는 재시작 요청을 수행할 수 있게 해준다. 
+이것은 "RESTART" G-Code 명령 실행과 유사하다. 
+예를 들면 :
+
 `{"id": 123, "method": "gcode/restart"}`
 
-As with the "gcode/script" endpoint, this endpoint only completes
-after any pending G-Code commands complete.
+"gcode/script" endpoint 와 같이 사용할 때 
+이 endpoint 는 지연된 G-Code 명령들이 완료된 후에만 오직 끝마칠 수 있다. 
 
-### gcode/firmware_restart
+### gcode/펌웨어 재실행 (gcode/firmware_restart)
 
-This is similar to the "gcode/restart" endpoint - it implements the
-G-Code "FIRMWARE_RESTART" command. For example:
+이것은 "gcode/restart" endpoint 와 유사하다. - 그것도 "FIRMWARE_RESTART" G-Code 명령을 수행합니다. 
+예를 들면 : 
+
 `{"id": 123, "method": "gcode/firmware_restart"}`
 
-As with the "gcode/script" endpoint, this endpoint only completes
-after any pending G-Code commands complete.
+"gcode/script" endpoint 와 같이 사용할 때 
+이 endpoint 는 지연된 G-Code 명령들이 완료된 후에만 오직 끝마칠 수 있다. 
 
-### gcode/subscribe_output
+### gcode/서브스크라이브_출력 (gcode/subscribe_output)
 
-This endpoint is used to subscribe to G-Code terminal messages that
-are generated by Klipper. For example:
+
+이 endpoint 는 클리퍼에 의해 생성된 G-code 터미널 메시지를 표시할 때 사용됩니다. 
+예를 들어 : 
+
 `{"id": 123, "method": "gcode/subscribe_output", "params":
 {"response_template":{}}}`
-might later produce asynchronous messages such as:
+
+이것은 후에 다음과 같은 비동기형 메시지를 내보낼 수 있습니다. :
+
 `{"params": {"response": "// Klipper state: Shutdown"}}`
 
-This endpoint is intended to support human interaction via a "terminal
-window" interface. Parsing content from the G-Code terminal output is
-discouraged. Use the "objects/subscribe" endpoint to obtain updates on
-Klipper's state.
+이 endpoint 는 터미널창 인터페이스를 통해 인간과 상호작용을 하도록 도와줄 수 있게 합니다. 
+G-code 터미널 출력으로 부터의 파싱 내용은 낙담케(?) 된다. 
+클리퍼 상태에 대한 업데이트 내용을 얻고자 할 때는 "objects/subscribe" endpoint 를 사용하라. 
 
-### pause_resume/cancel
 
-This endpoint is similar to running the "PRINT_CANCEL" G-Code command.
-For example:
+### 멈춤_재개/취소 (pause_resume/cancel)
+
+이 endpoint 는 "PRINT_CANCEL" G-Code 명령을 실행하는 것과 유사하다. 
+예를 들어 : 
+
 `{"id": 123, "method": "pause_resume/cancel"}`
 
-As with the "gcode/script" endpoint, this endpoint only completes
-after any pending G-Code commands complete.
+"gcode/script" endpoint 와 같이 사용할 때 
+이 endpoint 는 지연된 G-Code 명령들이 완료된 후에만 오직 끝마칠 수 있다. 
 
-### pause_resume/pause
+### 멈춤_재개/멈춤 (pause_resume/pause)
 
-This endpoint is similar to running the "PAUSE" G-Code command. For
-example:
+이 endpoint 는 "PAUSE" G-Code 명령을 실행하는 것과 유사하다. 
+예를 들어 : 
+
 `{"id": 123, "method": "pause_resume/pause"}`
 
-As with the "gcode/script" endpoint, this endpoint only completes
-after any pending G-Code commands complete.
+"gcode/script" endpoint 와 같이 사용할 때 
+이 endpoint 는 지연된 G-Code 명령들이 완료된 후에만 오직 끝마칠 수 있다. 
 
-### pause_resume/resume
+### 멈춤_재개/재개 (pause_resume/resume)
 
-This endpoint is similar to running the "RESUME" G-Code command. For
-example:
+이 endpoint 는 "RESUME" G-Code 명령을 실행하는 것과 유사하다. 
+예를 들어 : 
+
 `{"id": 123, "method": "pause_resume/resume"}`
 
-As with the "gcode/script" endpoint, this endpoint only completes
-after any pending G-Code commands complete.
+"gcode/script" endpoint 와 같이 사용할 때 
+이 endpoint 는 지연된 G-Code 명령들이 완료된 후에만 오직 끝마칠 수 있다. 
 
-### query_endstops/status
+### 쿼리_엔드스탑/상태 (query_endstops/status)
 
-This endpoint will query the active endpoints and return their status.
-For example:
+이 endpoint 는 실행 endpoint들을 쿼리하고 그들의 상태를 반환해줄것이다. 
+예를 들어 : 
+
 `{"id": 123, "method": "query_endstops/status"}`
-might return:
+
+이것은 다음을 반환할 것이다. :
+
 `{"id": 123, "result": {"y": "open", "x": "open", "z": "TRIGGERED"}}`
 
-As with the "gcode/script" endpoint, this endpoint only completes
-after any pending G-Code commands complete.
+"gcode/script" endpoint 와 같이 사용할 때 
+이 endpoint 는 지연된 G-Code 명령들이 완료된 후에만 오직 끝마칠 수 있다. 
+
+
+
