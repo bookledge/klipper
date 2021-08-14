@@ -46,6 +46,7 @@ Klipper 는 `scripts/whconsole.py` 도구를 포함하고 있습니다.
 
 그리고 응답값은 아래와 같은 유형입니다 : 
 
+
 `{"id": 123, "result": {"state_message": "Printer is ready",
 "klipper_path": "/home/pi/klipper", "config_file":
 "/home/pi/printer.cfg", "software_version": "v0.8.0-823-g883b1cb6",
@@ -89,7 +90,6 @@ JSON 요청은 절대로 미래의 JSON 요청의 프로세싱을 중단시키�
 ## 구독
 
 몇몇 클리퍼의 "endpoint" 요청들은 미래의 비동기적인 업데이트 메시지를 나타내줍니다.  
-
 예를 들면:
 
 `{"id": 123, "method": "gcode/subscribe_output", "params":
@@ -152,7 +152,6 @@ full name 은 요청 딕셔너리의 "method" 파라메터에 셋팅되어 있�
 원격 메쏘드  `paneldue_beep` 는 클리퍼로 부터 불려질 수 있습니다. 
 만일 메쏘드가 파라메터들을 가지게 되면 그것들은 키워드 아규먼트들로써 제공될 수 있음을 기억하십시오.
 아래 어떻게 gcode 메크로에서 불러올 수 있는지에 대한 예시가 있습니다. :
-
 
 ```
 [gcode_macro PANELDUE_BEEP]
