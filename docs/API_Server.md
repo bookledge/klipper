@@ -8,6 +8,7 @@
 
 API 서버를 사용하기 위해서, klippy.py 호스트 소프트웨어가 '-a' 파라메터와 함께 시작되어야 합니다. 
 예를 들어
+
 ```
 ~/klippy-env/bin/python ~/klipper/klippy/klippy.py ~/printer.cfg -a /tmp/klippy_uds -l /tmp/klippy.log
 ```
@@ -19,6 +20,7 @@ API 서버를 사용하기 위해서, klippy.py 호스트 소프트웨어가 '-a
 
 소켓에 보내지고 수신된 메시지들은 JSON 인코딩된 문자열입니다. 
 이 문자열들은 ASCII 0x03 문자로 종료됩니다.
+
 ```
 <json_object_1><0x03><json_object_2><0x03>...
 ```
@@ -26,6 +28,7 @@ API 서버를 사용하기 위해서, klippy.py 호스트 소프트웨어가 '-a
 Klipper 는 `scripts/whconsole.py` 도구를 포함하고 있습니다.
 이 도구는 상위 메시지 프레이밍을 수행할 수 있습니다. 
 예를 들어 : 
+
 ```
 ~/klipper/scripts/whconsole.py /tmp/klippy_uds
 ```
