@@ -150,12 +150,11 @@ bicubic_tension: 0.2
 
 ![bedmesh_interpolated](img/bedmesh_interpolated.svg)
 
-### 이동 Move Splitting
+### 이동 스플리팅 
 
-Bed Mesh works by intercepting gcode move commands and applying a transform
-to their Z coordinate. Long moves must be and split into smaller moves
-to correctly follow the shape of the bed. The options below control the
-splitting behavior.
+베드 메쉬는 gcode 이동명령을 가로채고 Z 좌표계에 변형을 가하면서 작동한다. 
+긴 이동은 베드 표면 형상에 따라 정확히 움직일 수 있기 위해 보다 작은 움직임으로 나뉘어져야 한다. 
+아래 나오는 옵션들이 그런 나누는 동작을 컨트롤할 것이다. 
 
 ```
 [bed_mesh]
@@ -169,39 +168,25 @@ split_delta_z: .025
 ```
 
 - `move_check_distance: 5`\
-  _Default Value: 5_\
-  The minimum distance to check for the desired change in Z before performing
-  a split.  In this example, a move longer than 5mm will be traversed by the
-  algorithm.  Each 5mm a mesh Z lookup will occur, comparing it with the Z
-  value of the previous move.  If the delta meets the threshold set by
-  `split_delta_z`, the move will be split and traversal will continue.  This
-  process repeats until the end of the move is reached, where a final
-  adjustment will be applied.  Moves shorter than the `move_check_distance`
-  have the correct Z adjustment applied directly to the move without
-  traversal or splitting.
+  _Default 값: 5_\
+  이동분할을 하기 전 Z 방향의 필요변화를 체크하기 위한 최소한의 거리
+  예를 들어, 5mm 이상의 이동은 알고리즘에 의해 이동하게 될 것이다. 
+  5mm 마다 메쉬에 대한 Z lookup 이 발생하고, 이전 이동에서의 Z 값과 비교할 것이다. 
+  만약 델타 프린터가 `split_delta_z`에 의해 쓰레시홀드를 직면하게 되면, 이동은 분할되고 이어질 것이다. 이 과정은 이동의 끝에 이르기까지 계속반복될 것이다. 그리고 그 끝점에서 마지막 값이 적용될 것이다. `move_check_distance` 보다 짧은 이동은 분할없이 이전이동의 최종 Z 값이 곧바로 적용되어 이동하게 된다. 
 
 - `split_delta_z: .025`\
-  _Default Value: .025_\
-  As mentioned above, this is the minimum deviation required to trigger a
-  move split.  In this example, any Z value with a deviation +/- .025mm
-  will trigger a split.
+  _Default 값: .025_\
+  위에 언급된바와 같이 이것은 이동 분할 여부를 판단할 때 요구되는 최소한의 편차값이다. 
+  이 예제에서는, +/- 0.025mm 의 편차를 가지는 Z 값은 분할이 될 것이다. 
 
-Generally the default values for these options are sufficient, in fact the
-default value of 5mm for the `move_check_distance` may be overkill. However an
-advanced user may wish to experiment with these options in an effort to squeeze
-out the optimial first layer.
+일반적으로 이 옵션들에 대한 기본 값들을 적용하면 충분하다.  사실 `move_check_distance` 값으로 5mm 는 너무 과할 수도 있다. 하지만 고급사용자들은 최적화된 첫레이어를 형성하기 위해 이 옵션을 이용해 다양한 실험을 하려할지 모른다. 
 
-### Mesh Fade
+### 메쉬 페이드 
 
-When "fade" is enabled Z adjustment is phased out over a distance defined
-by the configuration.  This is accomplished by applying small adjustments
-to the layer height, either increasing or decreasing depending on the shape
-of the bed. When fade has completed, Z adjustment is no longer applied,
-allowing the top of the print to be flat rather than mirror the shape of the
-bed.  Fade also may have some undesirable traits, if you fade too quickly it
-can result in visible artifacts on the print.  Also, if your bed is
-significantly warped, fade can shrink or stretch the Z height of the print.
-As such, fade is disabled by default.
+"fade" 가 실행되면 Z 보정은 설정에서 정해놓은 거리 이상으로 올라가면 서서히 사라지게 된다. 
+이는 베드 모양에 따라 증가 혹은 감소하면서 레이어 높이가 올라가며 작은 보정이 적용된다.
+페이드가 끝마치면, Z 보정은 더이상 진행되지 않는다. 그리고 프린팅의 최종 Top면은 베드의 모양보다 훨씬 더 평평하게 될 것이다. 
+페이드는 좀 별로인 특징도 가지고 있다. 만약 너무 빨리 페이드하게 되면 프린팅에 눈에 띄는 불량이 형성될 수 있다. 또한, 베드가 심각하게 휘어 있는 상태였다면 페이드는 출력물의 Z 높이를 줄이거나 늘리게 할 수도 있다.  그런 이유로 페이드는 꺼져 있는게 기본설정이다. 
 
 ```
 [bed_mesh]
@@ -216,40 +201,29 @@ fade_target: 0
 ```
 
 - `fade_start: 1`\
-  _Default Value: 1_\
-  The Z height in which to start phasing out adjustment.  It is a good idea
-  to get a few layers down before starting the fade process.
+  _Default 값: 1_\
+  보정 효과가 서서히 없어지는 시작높이.  서너개의 레이어를 출력하고 페이드 과정을 시작하는 것이 좋다. 
 
 - `fade_end: 10`\
-  _Default Value: 0_\
-  The Z height in which fade should complete.  If this value is lower than
-  `fade_start` then fade is disabled.  This value may be adjusted depending
-  on how warped the print surface is.  A significantly warped surface should
-  fade out over a longer distance.  A near flat surface may be able to reduce
-  this value to phase out more quickly.  10mm is a sane value to begin with if
-  using the default value of 1 for `fade_start`.
+  _Default 값: 0_\
+  페이드 효과를 마치는 높이.  만약 이 값이 `fade_start`보다 작다면 페이드는 꺼지게 된다. 이 값은 프린터 베드표면이 얼마나 휘어있느냐에 따라 값을 정해주면 된다. 아주 심각하게 휘어 있는 베드라면 좀더 두껍게 페이드 아웃을 진행해줘야 한다. 거의 평면에 가까운 베드라면 보다 빨리 보정이 완료되도록 이 값을 줄이면 되겠다. 만약 `fade_start`로 1을 지정했다면 10mm 값은 적당한 값이라 하겠다. 
 
 - `fade_target: 0`\
-  _Default Value:  The average Z value of the mesh_\
-  The `fade_target` can be thought of as an additional Z offset applied to the
-  entire bed after fade completes.  Generally speaking we would like this value
-  to be 0, however there are circumstances where it should not be.  For
-  example,  lets assume your homing position on the bed is an outlier, its
-  .2 mm lower than the average probed height of the bed.  If the `fade_target`
-  is 0, fade will shrink the print by an average of .2 mm across the bed.  By
-  setting the `fade_target` to .2, the homed area will expand by .2 mm, however
-  the rest of the bed will have an accurately sized.  Generally its a good idea
-  to leave `fade_target` out of the configuration so the average height of the
-  mesh is used, however it may be desirable to manually adjust the fade target
-  if one wants to print on a specific portion of the bed.
+  _Default 값:  메쉬의 평균 Z 값_\
+  `fade_target` 은 페이드가 끝났을때 전체 베드에 적용되는 추가 Z 오프셋으로 이해될 수 있다. 
+  일반적으로 말해 우리는 이값을 0으로 하고 싶었다. 하지만, 0일 수 없는 상황이 발생하기도 한다. 
+  예를 들어, 호밍 위치가 베드의 평균 레벨측정 높이보다 0.2mm 가 낮았다고 가정해보자. 
+  만일 `fade_target`이 0 이라면, 페이드는 출력물을 베드 전체적으로 평균 0.2mm 만큼의 두께가 줄어들게 만들 것이다. 
+  `fade_target` 을 0.2로 셋팅을 하면 호밍 영역은 0.2mm 늘어날 것이다. 하지만, 베드의 나머지는 정확한 사이즈를 갖게 될 것이다. 
+  일반적으로는 `fade_target`을 설정에서는 다루지 않고 메쉬의 평균높이를 사용하는 것이 더 좋다. 
+  하지만, 베드의 특정 위치에서 프린트를 정확히 하고자 한다면 fade target 을 수동으로 최적화시키는 게 더 좋을 수도 있다. 
 
-### The Relative Reference Index
 
-Most probes are suceptible to drift, ie: inaccuracies in probing introduced by
-heat or interference.  This can make calculating the probe's z-offset
-challenging, particuarly at different bed temperatures.  As such, some printers
-use an endstop for homing the Z axis, and a probe for calibrating the mesh.
-These printers can benefit from configuring the relative reference index.
+### 상대적 참조 인덱스
+
+대다수의 프로브는 주변상황에 쉽게 영향을 받는다. 예를 들면 열이나 충돌등에 의해 발생하는 부정확함이 발생할 수 있다. 이런 현상은 Probe Z-offset 을 결정하는걸 어렵게 만들 수 있다. 특히, 베드온도가 달라짐에 따라 레벨링이 틀어진다거나.  
+그런 이유로, 몇몇 프린터들은 Z 호밍을 위해선 Endstop을, 메쉬 캘리브레이션을 위해선 프로브를 사용한다. 
+이 프린터들은 상대적 참조 인덱스 설정을 해두면 득을 볼 수 있다. 
 
 ```
 [bed_mesh]
@@ -262,35 +236,23 @@ relative_reference_index: 7
 ```
 
 - `relative_reference_index: 7`\
-  _Default Value: None (disabled)_\
-  When the probed points are generated they are each assigned an index.  You
-  can look up this index in klippy.log or by using BED_MESH_OUTPUT (see the
-  section on Bed Mesh GCodes below for more information).  If you assign an
-  index to the `relative_reference_index` option, the value probed at this
-  coordinate will replace the probe's z_offset.  This effectively makes
-  this coordinate the "zero" reference for the mesh.
+  _Default 값: None (꺼짐)_\
+  레벨측정 포인트가 생성되면 그것들은 인텍스로 할당된다. 당신이 klippy.log 에서나 BED_MESH_OUTPUT을 사용하여 인덱스를 살펴볼 수 있다. (보다 자세한 내용은 아래의 Bed Mesh GCodes에 있는 섹션을 참고하기 바란다)
+  만일 인덱스값에 `relative_reference_index` 옵션을 할당하게 되면, 이 좌표계에서 측정된 값은 프로브의 Z 오프셋을 대체할 것이다. 이것은 효과적으로 이 좌표계가 메쉬에 대한 "zero" 참조를 만든다. 
+ 
+상대적 참조 인덱스를 사용할 때는 Z endstop 캘리브레이션이 진행된 베드상의 지점에서 가장 가까운 인덱스를 골라야 한다. 
+log 나 BED_MESH_OUTPUT을 사용하여 인덱스를 살펴본다면, 정확한 인덱스를 찾기 위해 "Probe" 헤더아래 리스트된 좌표계를 사용해야함을 기억하라. 
 
-When using the relative reference index, you should choose the index nearest
-to the spot on the bed where Z endstop calibration was done.  Note that
-when looking up the index using the log or BED_MESH_OUTPUT, you should use
-the coordinates listed under the "Probe" header to find the correct index.
+### 결함 영역
 
-### Faulty Regions
+베드 특정위치에 결함이 있는 상태에서 레벨 측정이 되었을때 어떤 위치가 부정확한 결과를 내는 곳인지 레포팅 하는것이 가능하다. 
+이에 대한 가장 좋은 예는 쉽게 제거할 수 있는 자석스틸시트를 사용한 베드에서 찾아볼 수 있다.  
+이 자석들 주변에 형성된 자기장은 인덕티브 방식의 프로브로 하여금 높이를 더 높거나 낮게 측정되게 만들 수 있다. 결과적으로 자석이 있는 표면에서는 부정확한 측정 결과를 얻게 된다. 
+**주의: 이것을 전체 베드상에서 부정확한결과를 초래하는 프로브의 지역별 편차와 헷갈리지 말아야 한다.**
 
-It is possible for some areas of a bed to report inaccurate results when
-probing due to a "fault" at specific locations.  The best example of this
-are beds with series of integrated magnets used to retain removable steel
-sheets.  The magnetic field at and around these magnets may cause an inductive
-probe to trigger at a distance higher or lower than it would otherwise,
-resulting in a mesh that does not accurately represent the surface at these
-locations.  **Note: This should not be confused with probe location bias, which
-produces inaccurate results across the entire bed.**
-
-The `faulty_region` options may be configured to compensate for this affect.
-If a generated point lies within a faulty region bed mesh will attempt to
-probe up to 4 points at the boundaries of this region.  These probed values
-will be averaged and inserted in the mesh as the Z value at the generated
-(X, Y) coordinate.
+`faulty_region` 옵션은 이 영향을 보상하기 위해 설정할 수 있다. 
+형성된 지점이 결함 영역안에 놓인다면 베드 메쉬는 이 지역경계에 4 지점을 측정하게 될 것이다. 
+이렇게 측정된 값의 평균치를 얻고, 생성된 X,Y 좌표계에 메쉬의 Z 값으로 입력되게 된다. 
 
 ```
 [bed_mesh]
@@ -311,79 +273,66 @@ faulty_region_4_max: 45.0, 210.0
 
 - `faulty_region_{1...99}_min`\
   `faulty_region_{1..99}_max`\
-  _Default Value: None (disabled)_\
-  Faulty Regions are defined in a way similar to that of mesh itself, where
-  minimum and maximum (X, Y) coordinates must be specified for each region.
-  A faulty region may extend outside of a mesh, however the alternate points
-  generated will always be within the mesh boundary.  No two regions may
-  overlap.
+  _Default 값: None (해제됨)_\
+  
+  결함영역은 메쉬위치와 같은 방식으로 정의된다. 즉, 최소/최대 (X, Y) 좌표가 각 영역별로 설정된다. 
+  결함영역은 메쉬 바깥으로 확장될 수도 있다. 그러나, 생성된 대체포인트 들은 항상 메쉬 경계 안에 있게 될 것이다.  어떤 두개의 영역도 겹칠 수는 없다. 
 
-The image below illustrates how replacement points are generated when
-a generated point lies within a faulty region.  The regions shown match those
-in the sample config above.  The replacement points and their coordinates
-are identified in green.
+
+아래 그림은 측정해야할 메쉬 좌표가 결함영역안에 들어갈 때 어떤 대체포인트를 이용해 측정되는지를 나타낸 그림이다. 아래 그림에 나타난 좌표들은 위 예시에 정의된 위치좌표를 사용했다. 대체 포인트와 좌표값은 초록색으로 표시해두었다. 
 
 ![bedmesh_interpolated](img/bedmesh_faulty_regions.svg)
 
-## Bed Mesh Gcodes
 
-### Calibration
+## 베드 메쉬 Gcode 
+
+### 캘리브레이션 
 
 `BED_MESH_CALIBRATE METHOD=[manual | automatic] [<probe_parameter>=<value>]
  [<mesh_parameter>=<value>]`\
-_Default Method:  automatic if a probe is detected, otherwise manual_
+_Default 방법:  프로브가 감지되면 자동, 아닌경우는 수동_
 
-Initiates the probing procedure for Bed Mesh Calibration.  If `METHOD=manual`
-is selected then manual probing will occur.  When switching between automatic
-and manual probing the generated mesh points will automatically be adjusted.
+베드 메쉬 캘리브레이션을 위한 측정과정을 시작한다. 만약 `METHOD=manual` 이 선택되면 수동측정이 진행될 것이다. 자동과 수동측정간의 전환이 되면 생성된 메쉬 포인트는 자동으로 적용될 것이다. 
 
-It is possible to specify mesh parameters to modify the probed area.  The
-following parameters are available:
-- Rectangular beds (cartesian):
+측정된 영역을 수정하기 위해 메쉬 파라메터를 설정하는것이 가능하다. 아래 방법을 사용하면 된다. : 
+- 사각형 베드 (카테시안):
   - `MESH_MIN`
   - `MESH_MAX`
   - `PROBE_COUNT`
-- Round beds (delta):
+- 원형 베드 (델타):
   - `MESH_RADIUS`
   - `MESH_ORIGIN`
   - `ROUND_PROBE_COUNT`
-- All beds:
+- 모든 베드:
   - `RELATIVE_REFERNCE_INDEX`
   - `ALGORITHM`
-See the configuration documentation above for details on how each parameter
-applies to the mesh.
 
-### Profiles
+각 파라메타를 어떻게 메쉬에 적용하는지에 대한 자세한 설명은 위쪽에 있는 설정 관련 내용을 참고하길 바란다. 
+
+### 프로필
 
 `BED_MESH_PROFILE SAVE=name LOAD=name REMOVE=name`
 
-After a BED_MESH_CALIBRATE has been performed, it is possible to save the
-current mesh state into a named profile.  This makes it possible to load
-a mesh without re-probing the bed.  After a profile has been saved using
-`BED_MESH_PROFILE SAVE=name` the `SAVE_CONFIG` gcode may be executed
-to write the profile to printer.cfg.
+BED_MESH_CALIBRATE 을 진행하게 되면, 현재 메쉬상태에 이름을 지정하여 저장할 수 있다. 
+이렇게 하면 베드를 재측정하지 않고 저장된 메쉬를 불러오는 것이 가능하다. 프로필이 `BED_MESH_PROFILE SAVE=name` 을 사용해 저장되었다면, `SAVE_CONFIG` gcode 가 실행되어 프로필은 printer.cfg 파일에 쓰여질 것이다. 
 
-Profiles can be loaded by executing `BED_MESH_PROFILE LOAD=name`.
+프로필을 불러오려면 `BED_MESH_PROFILE LOAD=name` 를 실행시키면 된다. 
 
-It should be noted that each time a BED_MESH_CALIBRATE occurs, the current
-state is automatically saved to the _default_ profile.  If this profile
-exists it is automatically loaded when Klipper starts.  If this behavior
-is not desirable the _default_ profile can be removed as follows:
+BED_MESH_CALIBRATE가 발생할 때마다 현재 상태가 _default_ 프로필에 자동으로 저장됩니다. 
+만일 이 프로필이 존재한다면 클리퍼가 시작될때 자동으로 불러와진다. 만일 이렇게 자동불러와지는것을 원치 않는다면 _default_ 프로필은 아래와 같은 방법으로 삭제할 수 있다:
 
 `BED_MESH_PROFILE REMOVE=default`
 
-Any other saved profile can be removed in the same fashion, replacing
-_default_ with the named profile you wish to remove.
+어떤 다른 저장된 프로필도 같은 방식으로 삭제될 수 있다. 그저 제거하기 원하는 프로필 이름을 _default_ 대신에 써넣으면 된다. 
 
-### Output
+### 결과출력
 
 `BED_MESH_OUTPUT PGP=[0 | 1]`
 
-Outputs the current mesh state to the terminal.  Note that the mesh itself
-is output
+현재 메쉬 측정상태를 터미널에 출력한다. 메쉬 그자체가 출력됨을 기억하라. 
 
-The PGP parameter is shorthand for "Print Generated Points".  If `PGP=1` is
-set, the generated probed points will be output to the terminal:
+PGP 파라메터는 "Print Generated Points"의 줄임말이다.  
+만약 `PGP=1` 이렇게 셋팅을 하면, 생성된 측정 포인트들은 터미널에 위치결과를 내보낼 것이다.:
 
 ```
 // bed_mesh: generated points
@@ -405,23 +354,16 @@ set, the generated probed points will be output to the terminal:
 // 14 | (216.0, 193.0) | (240.0, 198.0)
 ```
 
-The "Tool Adjusted" points refer to the nozzle location for each point, and
-the "Probe" points refer to the probe location.  Note that when manually
-probing the "Probe" points will refer to both the tool and nozzle locations.
+"Tool Adjusted" 포인트는 각 포인트에 대한 노즐의 위치를 말한다. 그리고 "Probe" 포인트는 프로브의 위치를 말한다. 수동으로 측정을 한다면, "Probe" 포인트는 노즐위치를 뜻함을 기억하라.
 
-### Clear Mesh State
+### 메쉬 상태 제거
 
 `BED_MESH_CLEAR`
 
-This gcode may be used to clear the internal mesh state.
+이 gcode 는 내부 메쉬 상태를 삭제하기 위해 사용된다. 
 
-### Apply X/Y offsets
+### X/Y 오프셋을 적용
 
 `BED_MESH_OFFSET [X=<value>] [Y=<value>]`
 
-This is useful for printers with multiple independent extruders, as an offset
-is necessary to produce correct Z adjustment after a tool change.  Offsets
-should be specified relative to the primary extruder.  That is, a positive
-X offset should be specified if the secondary extruder is mounted to the
-right of the primary extruder, and a positive Y offset should be specified
-if the secondary extruder is mounted "behind" the primary extruder.
+이것은 멀티 독립 익스트루더를 가진 프린터를 사용할 때 유용하다. 툴체인지 이후 정확한 Z 값을 보정하기 위해 offset 은 필수적이다. 오프셋은 가장 기본되는 익스트루도에 상대적인 값으로 설정된다. 만약 두번째 익스트루더가 첫번째 기본 익스트루더의 오른쪽에 마운트되어져 있다면 X 오프셋은 양의 값을 가져야 한다. 마찬가지로 두번째 익스트루더가 첫번째 익스트루더 뒤쪽에 마운트되어 있다면 Y 오프셋은 양의 값을 가져야 한다. 
