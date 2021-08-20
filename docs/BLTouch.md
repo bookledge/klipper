@@ -1,19 +1,15 @@
 # BL-Touch
 
-## Connecting BL-Touch
+## BL-Touch 연결
 
-A **warning** before you start: Avoid touching the BL-Touch pin with
-your bare fingers, since it is quite sensitive to finger grease. And
-if you do touch it, be very gentle, in order to not bend or push
-anything.
+시작전 **주의** : BL-touch 핀을 맨손가락으로 만지지 않도록 하라. 
+왜냐하면 손가락 구리스(?)가 매우 예민하기 때문이다.
+만일 만지게 된다면 핀이 구부러지거나 어떤것도 밀지 않도록 하기 위해 조심스럽게 다뤄라.
 
-Hook up the BL-Touch "servo" connector to a `control_pin` according to
-the BL-Touch documentation or your MCU documentation. Using the
-original wiring, the yellow wire from the triple is the `control_pin`
-and the white wire from the pair is the `sensor_pin`. You need to
-configure these pins according to your wiring. Most BL-Touch devices
-require a pullup on the sensor pin (prefix the pin name with "^"). For
-example:
+BL-touch 서보 연결선을 bltouch 문서와 MCU 문서에 있는 `control_pin`에 곱아라. 
+기본선을 사용한다면  세가닥 나와 있는 것중 노란색 선은 `control_pin` 이다. 두가닥 나와 있는 것중 흰색선은 `sensor_pin` 이다. 너의 배선연결에 따라 이 핀들을 설정할 필요가 있다. 
+대부분의 bltouch 장치들은 센서 핀(핀 이름앞에 "^"를 가진)상에 풀업이 필요하다. 
+예를 들면:
 
 ```
 [bltouch]
@@ -21,10 +17,9 @@ sensor_pin: ^P1.24
 control_pin: P1.26
 ```
 
-If the BL-Touch will be used to home the Z axis then set `endstop_pin:
-probe:z_virtual_endstop` in the `[stepper_z]` config section and add a
-`[safe_z_home]` config section to raise the z axis, home the xy axes,
-move to the center of the bed, and home the z axis. For example:
+만약 bltouch 가 Z축 호밍할 때 사용된다면 `[stepper_z]` 에 `endstop_pin:
+probe:z_virtual_endstop` 로 설정하라. 그리고 `[safe_z_home]` 구성 섹션을 더하라. 
+그렇게 되면 일단 Z 축을 올리고, XY축 호밍을 한후에, 베드 센터로 이동해서 Z 축 호밍을 하게 될 것이다. 예를들어 : 
 
 ```
 [safe_z_home]
@@ -34,9 +29,7 @@ z_hop: 10                 # Move up 10mm
 z_hop_speed: 5
 ```
 
-It's important that the z_hop movement in safe_z_home is high enough
-that the probe doesn't hit anything even if the probe pin happens to
-be in its lowest state.
+safe_z_home 으로 z_hop 이동은 프로브 핀이 가장 낮은 위치에 있는 상태에서도 다른 어떤것에도 부딪히지 않을 정도로 충분히 높이 올려서 이동하도록 하는게 중요하다. 
 
 ## Initial tests
 
